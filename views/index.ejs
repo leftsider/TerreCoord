@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🏡 Personal Property Coordinator</h1>
+        <p>Welcome to your vacation property booking system!</p>
+        
+        <div class="booking-form">
+            <h2>Request Booking</h2>
+            <form action="/booking" method="POST">
+                <label for="dates">Select Dates:</label>
+                <input type="date" id="start-date" name="startDate" required>
+                <input type="date" id="end-date" name="endDate" required>
+                
+                <label for="name">Your Name:</label>
+                <input type="text" id="name" name="name" required>
+                
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+                
+                <button type="submit">Check Availability</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
