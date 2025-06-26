@@ -11,21 +11,60 @@
         <h1>🏡 Personal Property Coordinator</h1>
         <p>Welcome to your vacation property booking system!</p>
         
+        <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+            <div class="error">
+                <% errors.forEach(function(error) { %>
+                    <p><%= error %></p>
+                <% }); %>
+            </div>
+        <% } %>
+        <% if (typeof success !== 'undefined') { %>
+            <div class="success">
+                <p><%= success %></p>
+            </div>
+        <% } %>
+
+        
         <div class="booking-form">
             <h2>Request Booking</h2>
             <form action="/booking" method="POST">
                 <label for="dates">Select Dates:</label>
-                <input type="date" id="start-date" name="startDate" required>
-                <input type="date" id="end-date" name="endDate" required>
+                <input 
+                    type="date" 
+                    id="start-date" 
+                    name="startDate" 
+                    required 
+                    value="<%= formData && formData.startDate ? formData.startDate : '' %>"
+                >
+                <input 
+                    type="date" 
+                    id="end-date" 
+                    name="endDate" 
+                    required 
+                    value="<%= formData && formData.endDate ? formData.endDate : '' %>"
+                >
                 
                 <label for="name">Your Name:</label>
-                <input type="text" id="name" name="name" required>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required 
+                    value="<%= formData && formData.name ? formData.name : '' %>"
+                >
                 
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    required 
+                    value="<%= formData && formData.email ? formData.email : '' %>"
+                >
                 
                 <button type="submit">Check Availability</button>
             </form>
+
         </div>
     </div>
 </body>
