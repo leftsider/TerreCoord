@@ -1,3 +1,6 @@
+// Temporary in-memory bookings store
+const bookings = [];
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
