@@ -67,3 +67,43 @@ app.post('/booking', (req, res) => {
         formData: {}
     });
 });
+
+const { getOAuth2Client, TOKEN_PATH } = require('./googleAuth');
+const { google } = require('googleapis');
+const fs = require('fs');
+
+app.get('/auth/google', (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const authUrl = oAuth2Client.generateAuthUrl({
+        access_type: 'offline',
+        scope: ['https://www.googleapis.com/auth/calendar.readonly'],
+    });
+    res.redirect(authUrl);
+});
+
+app.get('/oauth2callback', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const code = req.query.code;
+    const { tokens } = await oAuth2Client.getToken(code);
+    oAuth2Client.setCredentials(tokens);
+    fs.writeFileSync(TOKEN_PATH, JSON.stringify(tokens));
+    res.send('Authentication successful! You can close this window.');
+});
+
+app.get('/list-events', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    if (fs.existsSync(TOKEN_PATH)) {
+        oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
+        const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+        const events = await calendar.events.list({
+            calendarId: 'primary',
+            timeMin: new Date().toISOString(),
+            maxResults: 10,
+            singleEvents: true,
+            orderBy: 'startTime',
+        });
+        res.json(events.data.items);
+    } else {
+        res.redirect('/auth/google');
+    }
+});
