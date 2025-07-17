@@ -67,29 +67,5 @@
             </form>
         </div>
     </div>
-    <!-- === DEBUG SECTION (comment out in production) === -->
-<div class="debug-section" style="margin-top:2em; background:#f5f5f5; padding:15px; color:#222; border:1px dashed #888;">
-  <h3>Debug Info</h3>
-  <ul>
-    <li><strong>Auth Established:</strong> <%= debug.authEstablished ? 'Yes' : 'No' %></li>
-    <li><strong>Calendar in Use:</strong> <%= debug.calendarId %></li>
-    <% if (debug.submittedDates) { %>
-      <li><strong>Submitted Dates:</strong> <%= debug.submittedDates.startDate %> through <%= debug.submittedDates.endDate %></li>
-    <% } %>
-    <% if (debug.calendarEventMatch !== null) { %>
-      <li>
-        <strong>Booking Exists On Calendar:</strong>
-        <%= typeof debug.calendarEventMatch === 'string'
-              ? debug.calendarEventMatch
-              : (debug.calendarEventMatch ? 'Yes' : 'No') %>
-      </li>
-    <% } %>
-  </ul>
-  <div><a href="/auth/google">Authenticate/Create Token</a></div>
-  <div style="font-size:0.85em; color:#888;">
-    (Remove or comment out this section for production.)
-  </div>
-</div>
-
 </body>
 </html>
