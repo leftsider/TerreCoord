@@ -159,7 +159,6 @@ app.post('/booking', async (req, res) => {
         });
     }
 
-    bookings.push({ name, email, startDate, endDate });
     res.render('index', {
         title: 'Property Coordinator',
         success: 'Your booking request has been received!',
