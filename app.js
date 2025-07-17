@@ -121,14 +121,16 @@ app.post('/booking', async (req, res) => {
                     const oAuth2Client = getOAuth2Client();
                     oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
                     const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+                    const endObj = new Date(endDate);
+                    endObj.setDate(endObj.getDate() + 1);
+                    const endDatePadded = endObj.toISOString().slice(0, 10); // "YYYY-MM-DD"
                     await calendar.events.insert({
                         calendarId: propertyCalendarId,
                         requestBody: {
                             summary: `Booking: ${name}`,
                             description: `Booking for ${name} (${email})`,
                             start: { date: startDate },
-                            end: { date: endDate }
-                        }
+                            end:   { date: endDatePadded },                        }
                     });
                 } catch (err) {
                     errors.push('Failed to create event on Google Calendar.');
