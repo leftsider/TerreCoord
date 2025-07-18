@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .dashboard-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        .dashboard-table th, .dashboard-table td { border: 1px solid #bbb; padding: 8px; text-align: left; }
+        .dashboard-table th { background: #f0f6f8; font-weight: bold; }
+        .approved-badge { color: #1b5e20; background: #e6ffe6; border-radius: 3px; padding: 2px 8px; }
+        .action-btn { padding: 4px 12px; border-radius: 4px; border: none; cursor: pointer; }
+        .action-btn.approve { background: #d3ffd3; color: #102a12; }
+        .action-btn.reject { background: #ffeaea; color: #821b1b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><%= title %></h1>
+        <p>Below are all bookings for this property pulled live from Google Calendar.</p>
+        
+        <% if (error) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+
+        <% if (bookings && bookings.length) { %>
+        <table class="dashboard-table">
+            <tr>
+                <th>Guest</th>
+                <th>Dates</th>
+                <th>Status</th>
+            </tr>
+            <% bookings.forEach(function(b) { %>
+                <tr>
+                    <td>
+                        <%= b.guest.replace('Booking for ', '') %>
+                    </td>
+                    <td>
+                        <span>
+                            <%= b.start %>
+                            <% if (b.end) { %>
+                              &ndash; <%= (new Date(b.end).toISOString().slice(0,10)) %>
+                            <% } %>
+                        </span>
+                    </td>
+                    <td>
+                        <span class="approved-badge">Approved</span>
+                    </td>
+                </tr>
+            <% }) %>
+        </table>
+        <% } else { %>
+            <p>No bookings found in the next 90 days.</p>
+        <% } %>
+    </div>
+</body>
+</html>
