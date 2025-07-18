@@ -172,6 +172,53 @@ app.post('/booking', async (req, res) => {
 
 // --- Standard Auth/API routes ---
 
+app.get('/owner', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const calendarId = calendars[PROPERTY_KEY];
+    let bookings = [];
+    let error = null;
+
+    try {
+        if (!fs.existsSync(TOKEN_PATH)) {
+            return res.send("Google authentication required. Please <a href='/auth/google'>connect your account here</a>.");
+        }
+
+        oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
+        const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+        // Get future events (up to 90 days out, adjust as needed)
+        const now = new Date();
+        const future = new Date();
+        future.setDate(now.getDate() + 90);
+
+        const resp = await calendar.events.list({
+            calendarId,
+            timeMin: now.toISOString(),
+            timeMax: future.toISOString(),
+            singleEvents: true,
+            orderBy: 'startTime',
+            maxResults: 50
+        });
+
+        bookings = (resp.data.items || []).map(e => ({
+            summary: e.summary || 'No title',
+            guest: e.description || '',
+            start: e.start.date || e.start.dateTime,
+            end: e.end.date || e.end.dateTime,
+            status: 'approved' // All present events are assumed approved for now
+        }));
+    } catch (err) {
+        error = err.message;
+    }
+
+    res.render('owner', {
+        title: 'Owner Dashboard',
+        bookings,
+        error
+    });
+});
+
+
 app.listen(PORT, () => {
     console.log(`🏡 Property Coordinator running on port ${PORT}`);
 });
