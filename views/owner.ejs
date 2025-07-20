@@ -8,43 +8,53 @@
         .dashboard-table { width: 100%; border-collapse: collapse; margin-top: 30px; }
         .dashboard-table th, .dashboard-table td { border: 1px solid #bbb; padding: 8px; text-align: left; }
         .dashboard-table th { background: #f0f6f8; font-weight: bold; }
-        .approved-badge { color: #1b5e20; background: #e6ffe6; border-radius: 3px; padding: 2px 8px; }
-        .action-btn { padding: 4px 12px; border-radius: 4px; border: none; cursor: pointer; }
-        .action-btn.approve { background: #d3ffd3; color: #102a12; }
-        .action-btn.reject { background: #ffeaea; color: #821b1b; }
+        .badge { border-radius: 3px; padding: 2px 8px; font-weight:bold; }
+        .badge.pending { background: #fff6d5; color: #b27800; }
+        .badge.confirmed { background: #e6ffe6; color: #1b5e20; }
+        .badge.declined { background: #ececec; color: #958585; text-decoration: line-through; }
+        td.actions form { display:inline; }
+        .action-btn { padding: 3px 10px; border-radius: 3px; border: none; cursor: pointer; font-size:90%; }
+        .action-btn.approve { background: #ecffe5; color: #1b5e20; }
+        .action-btn.reject { background: #ffe6e6; color: #a12a2a; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1><%= title %></h1>
-        <p>Below are all bookings for this property pulled live from Google Calendar.</p>
-        
+        <p>Bookings for this property appear below. Use Approve or Reject on pending requests.</p>
         <% if (error) { %>
             <div class="error"><%= error %></div>
         <% } %>
-
         <% if (bookings && bookings.length) { %>
         <table class="dashboard-table">
             <tr>
                 <th>Guest</th>
                 <th>Dates</th>
                 <th>Status</th>
+                <th>Actions</th>
             </tr>
             <% bookings.forEach(function(b) { %>
                 <tr>
+                    <td><%= b.guest.replace('Booking for ', '') %></td>
+                    <td><%= b.start %> &ndash; <%= (new Date(b.end).toISOString().slice(0,10)) %></td>
                     <td>
-                        <%= b.guest.replace('Booking for ', '') %>
+                        <% if (b.status === 'pending') { %>
+                            <span class="badge pending">Pending</span>
+                        <% } else if (b.status === 'confirmed' || b.status === 'approved') { %>
+                            <span class="badge confirmed">Confirmed</span>
+                        <% } else { %>
+                            <span class="badge declined">Declined</span>
+                        <% } %>
                     </td>
-                    <td>
-                        <span>
-                            <%= b.start %>
-                            <% if (b.end) { %>
-                              &ndash; <%= (new Date(b.end).toISOString().slice(0,10)) %>
-                            <% } %>
-                        </span>
-                    </td>
-                    <td>
-                        <span class="approved-badge">Approved</span>
+                    <td class="actions">
+                        <% if (b.status === 'pending') { %>
+                            <form method="POST" action="/owner/approve/<%= b.eventId %>">
+                                <button type="submit" class="action-btn approve">Approve</button>
+                            </form>
+                            <form method="POST" action="/owner/reject/<%= b.eventId %>">
+                                <button type="submit" class="action-btn reject">Reject</button>
+                            </form>
+                        <% } %>
                     </td>
                 </tr>
             <% }) %>

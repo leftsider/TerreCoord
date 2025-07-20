@@ -200,13 +200,21 @@ app.get('/owner', async (req, res) => {
             maxResults: 50
         });
 
-        bookings = (resp.data.items || []).map(e => ({
-            summary: e.summary || 'No title',
-            guest: e.description || '',
-            start: e.start.date || e.start.dateTime,
-            end: e.end.date || e.end.dateTime,
-            status: 'approved' // All present events are assumed approved for now
-        }));
+        bookings = (resp.data.items || []).map(e => {
+            let status = 'approved';
+            if (e.summary && e.summary.startsWith('PENDING')) status = 'pending';
+            if (e.summary && (e.summary.startsWith('DECLINED') || e.summary.startsWith('CANCELLED'))) status = 'declined';
+            if (e.summary && e.summary.startsWith('CONFIRMED')) status = 'confirmed';
+            return {
+                eventId: e.id,
+                summary: e.summary || 'No title',
+                guest: e.description || '',
+                start: e.start.date || e.start.dateTime,
+                end: e.end.date || e.end.dateTime,
+                status
+            };
+        });
+
     } catch (err) {
         error = err.message;
     }
@@ -257,5 +265,72 @@ app.get('/list-events', async (req, res) => {
         res.json(events.data.items);
     } else {
         res.redirect('/auth/google');
+    }
+});
+
+app.post('/owner/approve/:eventId', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const calendarId = calendars[PROPERTY_KEY];
+    const eventId = req.params.eventId;
+    try {
+        oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
+        const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+        // Fetch the current event for editing
+        const {  event } = await calendar.events.get({ calendarId, eventId });
+
+        // Update summary and description, optionally add attendee
+        event.summary = event.summary.replace(/^PENDING /, 'CONFIRMED ');
+        const approvalNote = `\nApproved on ${new Date().toISOString()}`;
+        event.description = (event.description || '') + approvalNote;
+
+        // Optionally, extract email from description and add attendee
+        // let match = event.description.match(/\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i);
+        // if (match) event.attendees = [{ email: match[0] }];
+
+        await calendar.events.patch({
+            calendarId,
+            eventId,
+            requestBody: event
+        });
+
+        res.redirect('/owner');
+    } catch (err) {
+        res.status(500).send('Failed to approve booking: ' + err.message);
+    }
+});
+
+app.post('/owner/reject/:eventId', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const calendarId = calendars[PROPERTY_KEY];
+    const eventId = req.params.eventId;
+    try {
+        oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
+        const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
+
+        // Fetch, update summary/description, then delete event
+        const {  event } = await calendar.events.get({ calendarId, eventId });
+
+        // For audit: update to DECLINED, append timestamp to description
+        event.summary = event.summary.replace(/^PENDING /, 'DECLINED ');
+        const rejectionNote = `\nDeclined on ${new Date().toISOString()}`;
+        event.description = (event.description || '') + rejectionNote;
+
+        // Patch (optional): So audit trails can be seen in Google Calendar trash
+        await calendar.events.patch({
+            calendarId,
+            eventId,
+            requestBody: event
+        });
+
+        // Delete from the calendar (removes from active view)
+        await calendar.events.delete({
+            calendarId,
+            eventId
+        });
+
+        res.redirect('/owner');
+    } catch (err) {
+        res.status(500).send('Failed to reject booking: ' + err.message);
     }
 });
