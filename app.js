@@ -334,3 +334,78 @@ app.post('/owner/reject/:eventId', async (req, res) => {
         res.status(500).send('Failed to reject booking: ' + err.message);
     }
 });
+
+// GET: Show edit form for a booking
+app.get('/owner/edit/:eventId', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const calendarId = calendars[PROPERTY_KEY];
+    const eventId = req.params.eventId;
+    let error = null;
+    let event = {};
+    try {
+        oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
+        const { data } = await google.calendar({ version: 'v3', auth: oAuth2Client })
+            .events.get({ calendarId, eventId });
+
+        event = {
+            eventId,
+            summary: data.summary || '',
+            guest: (data.description && data.description.replace('Booking for ', '')) || '',
+            start: data.start.date || data.start.dateTime,
+            end: data.end.date || data.end.dateTime
+        };
+    } catch (err) {
+        error = 'Could not load booking: ' + err.message;
+    }
+    res.render('edit_booking', { title: 'Edit Booking', event, error });
+});
+
+// POST: Save edits to booking
+app.post('/owner/edit/:eventId', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const calendarId = calendars[PROPERTY_KEY];
+    const eventId = req.params.eventId;
+    const { summary, guest, start, end } = req.body;
+    try {
+        oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
+        const approvalSuffix = summary.startsWith('CONFIRMED') ? '' : ' (Edited)';
+        await google.calendar({ version: 'v3', auth: oAuth2Client })
+            .events.patch({
+                calendarId,
+                eventId,
+                requestBody: {
+                    summary: summary + approvalSuffix,
+                    description: `Booking for ${guest}\nModified on ${new Date().toISOString()}`,
+                    start: { date: start },
+                    end: { date: end }
+                }
+            });
+        res.redirect('/owner');
+    } catch (err) {
+        res.status(500).send('Failed to edit booking: ' + err.message);
+    }
+});
+
+app.post('/owner/cancel/:eventId', async (req, res) => {
+    const oAuth2Client = getOAuth2Client();
+    const calendarId = calendars[PROPERTY_KEY];
+    const eventId = req.params.eventId;
+    try {
+        oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
+        // Optional: patch event to mark it as cancelled in Trash
+        await google.calendar({ version: 'v3', auth: oAuth2Client })
+            .events.patch({
+                calendarId,
+                eventId,
+                requestBody: {
+                    summary: 'CANCELLED ' + req.body.summary,
+                    description: (req.body.description || '') + `\nCancelled on ${new Date().toISOString()}`
+                }
+            });
+        await google.calendar({ version: 'v3', auth: oAuth2Client })
+            .events.delete({ calendarId, eventId });
+        res.redirect('/owner');
+    } catch (err) {
+        res.status(500).send('Failed to cancel booking: ' + err.message);
+    }
+});

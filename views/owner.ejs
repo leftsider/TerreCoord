@@ -54,8 +54,21 @@
                             <form method="POST" action="/owner/reject/<%= b.eventId %>">
                                 <button type="submit" class="action-btn reject">Reject</button>
                             </form>
+                            <form method="GET" action="/owner/edit/<%= b.eventId %>" style="display:inline;">
+                                <button type="submit" class="action-btn">Edit</button>
+                            </form>
+                        <% } else if (b.status === 'confirmed' || b.status === 'approved') { %>
+                            <form method="GET" action="/owner/edit/<%= b.eventId %>" style="display:inline;">
+                                <button type="submit" class="action-btn">Edit</button>
+                            </form>
+                            <form method="POST" action="/owner/cancel/<%= b.eventId %>" style="display:inline;">
+                                <input type="hidden" name="summary" value="<%= b.summary %>">
+                                <input type="hidden" name="description" value="<%= b.guest %>">
+                                <button type="submit" class="action-btn reject">Cancel</button>
+                            </form>
                         <% } %>
                     </td>
+
                 </tr>
             <% }) %>
         </table>

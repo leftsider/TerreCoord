@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .edit-form { max-width: 400px; margin: 35px auto; background: #fafcff; padding: 25px; border-radius: 6px; }
+        .edit-form label, .edit-form input { display:block; width:100%; margin-bottom:12px; }
+        .edit-form button { margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Edit Booking</h2>
+        <% if (error) { %>
+            <div class="error"><%= error %></div>
+        <% } %>
+        <form class="edit-form" action="/owner/edit/<%= event.eventId %>" method="POST">
+            <label>Booking Title</label>
+            <input type="text" name="summary" value="<%= event.summary %>" required>
+            <label>Guest Name/Email</label>
+            <input type="text" name="guest" value="<%= event.guest %>" required>
+            <label>Start Date</label>
+            <input type="date" name="start" value="<%= event.start %>" required>
+            <label>End Date</label>
+            <input type="date" name="end" value="<%= event.end %>" required>
+            <button type="submit" class="action-btn approve">Save Changes</button>
+            <a href="/owner" style="margin-left:18px;">Back</a>
+        </form>
+    </div>
+</body>
+</html>
