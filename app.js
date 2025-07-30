@@ -5,9 +5,7 @@ const { google } = require('googleapis');
 const fs = require('fs');
 const { getOAuth2Client, TOKEN_PATH } = require('./googleAuth');
 
-const calendars = JSON.parse(fs.readFileSync(path.join(__dirname, 'calendars.json')));
-const PROPERTY_KEY = 'campbell_ave';
-
+const propertyConfigs = JSON.parse(fs.readFileSync(path.join(__dirname, 'calendars.json')));
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -21,17 +19,18 @@ function isAuthenticated() {
     return fs.existsSync(TOKEN_PATH);
 }
 
+// Conflict detection (ignoring current event if editing)
 async function isTimeSlotFree(startDate, endDate, calendarId, eventIdToIgnore = null) {
     try {
         const oAuth2Client = getOAuth2Client();
         if (!isAuthenticated()) return false;
         oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
-        const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
 
-        // For exclusive end in Google Calendar
-        const paddedEndObj = new Date(endDate); paddedEndObj.setDate(paddedEndObj.getDate() + 1);
+        const paddedEndObj = new Date(endDate); 
+        paddedEndObj.setDate(paddedEndObj.getDate() + 1);
         const timeMax = paddedEndObj.toISOString().slice(0,10);
 
+        const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
         const res = await calendar.events.list({
             calendarId,
             timeMin: new Date(startDate).toISOString(),
@@ -43,9 +42,7 @@ async function isTimeSlotFree(startDate, endDate, calendarId, eventIdToIgnore = 
             if (eventIdToIgnore && e.id === eventIdToIgnore) return false;
             const eStart = new Date(e.start.date || e.start.dateTime);
             let eEnd = new Date(e.end.date || e.end.dateTime);
-            // If all-day: end is exclusive, subtract a day
             if (e.end.date) eEnd.setDate(eEnd.getDate() - 1);
-
             const newStart = new Date(startDate);
             const newEnd = new Date(endDate);
             return (newStart <= eEnd && newEnd >= eStart);
@@ -56,27 +53,31 @@ async function isTimeSlotFree(startDate, endDate, calendarId, eventIdToIgnore = 
     }
 }
 
+// Index: Booking form with property selection
 app.get('/', (req, res) => {
-    const debug = {
-        authEstablished: isAuthenticated(),
-        calendarId: calendars[PROPERTY_KEY],
-        submittedDates: null,
-        calendarEventMatch: null
-    };
+    const properties = {};
+    for (const [key, value] of Object.entries(propertyConfigs)) {
+        properties[key] = value.name;
+    }
     res.render('index', {
         title: 'Property Coordinator',
+        properties,
         formData: {},
         errors: [],
         success: null,
-        debug
+        debug: {}
     });
 });
 
+// Handle booking: uses selected property
 app.post('/booking', async (req, res) => {
-    const { name, email, startDate, endDate } = req.body;
+    const { name, email, startDate, endDate, property } = req.body;
     const errors = [];
     let calendarEventMatch = null;
-    const propertyCalendarId = calendars[PROPERTY_KEY];
+
+    const calendarEntry = propertyConfigs[property];
+    if (!calendarEntry) errors.push('Invalid property selected.');
+    const propertyCalendarId = calendarEntry ? calendarEntry.id : null;
 
     if (!name || !email || !startDate || !endDate) {
         errors.push('All fields are required.');
@@ -85,16 +86,27 @@ app.post('/booking', async (req, res) => {
         errors.push('Start date must be before end date.');
     }
 
+    if (!propertyCalendarId) {
+        return res.render('index', {
+            title: 'Property Coordinator',
+            properties: Object.fromEntries(Object.entries(propertyConfigs).map(([k, v]) => [k, v.name])),
+            formData: { name, email, startDate, endDate, property },
+            errors: errors,
+            success: null,
+            debug: {}
+        });
+    }
+
     if (errors.length === 0) {
         try {
             const isFree = await isTimeSlotFree(startDate, endDate, propertyCalendarId);
             if (!isFree) {
                 errors.push('These dates are already booked on the calendar. Please choose different dates.');
             } else {
-                // All-day event fix: end date exclusive
                 const endObj = new Date(endDate);
                 endObj.setDate(endObj.getDate() + 1);
                 const endDatePadded = endObj.toISOString().slice(0, 10);
+
                 const oAuth2Client = getOAuth2Client();
                 oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
                 const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
@@ -108,44 +120,29 @@ app.post('/booking', async (req, res) => {
                     }
                 });
             }
-            // Optionally check that event exists for debug
-            // calendarEventMatch = await bookingExistsOnCalendar(startDate, endDate, propertyCalendarId);
         } catch (err) {
             errors.push('Failed to create event on Google Calendar.');
         }
     }
 
-    const debug = {
-        authEstablished: isAuthenticated(),
-        calendarId: propertyCalendarId,
-        submittedDates: { startDate, endDate },
-        calendarEventMatch
-    };
-
-    if (errors.length > 0) {
-        return res.render('index', {
-            title: 'Property Coordinator',
-            errors,
-            formData: { name, email, startDate, endDate },
-            success: null,
-            debug
-        });
-    }
-
     res.render('index', {
         title: 'Property Coordinator',
-        success: 'Your booking request has been received!',
-        formData: {},
-        errors: [],
-        debug
+        properties: Object.fromEntries(Object.entries(propertyConfigs).map(([k, v]) => [k, v.name])),
+        formData: errors.length > 0 ? { name, email, startDate, endDate, property } : {},
+        errors,
+        success: errors.length === 0 ? 'Your booking request has been received!' : null,
+        debug: {}
     });
 });
 
-// --- Owner Dashboard ---
-
+// --- Owner Dashboard: multiple property support ---
 app.get('/owner', async (req, res) => {
-    const oAuth2Client = getOAuth2Client();
-    const calendarId = calendars[PROPERTY_KEY];
+    const property = req.query.property || Object.keys(propertyConfigs)[0];
+    const calendarId = propertyConfigs[property].id;
+    const ownerProperties = {};
+    for (const [key, value] of Object.entries(propertyConfigs)) {
+        ownerProperties[key] = value.name;
+    }
     let bookings = [];
     let error = null;
     try {
@@ -153,6 +150,7 @@ app.get('/owner', async (req, res) => {
             return res.send("Google authentication required. Please <a href='/auth/google'>connect your account here</a>.");
         }
 
+        const oAuth2Client = getOAuth2Client();
         oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
         const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
         const now = new Date();
@@ -172,7 +170,6 @@ app.get('/owner', async (req, res) => {
             if (e.summary && e.summary.startsWith('PENDING')) status = 'pending';
             if (e.summary && (e.summary.startsWith('DECLINED') || e.summary.startsWith('CANCELLED'))) status = 'declined';
             if (e.summary && e.summary.startsWith('CONFIRMED')) status = 'confirmed';
-            // For all-day events, end date is exclusive. Subtract one day to show what's on user's calendar.
             let displayEnd = e.end.date
                 ? (() => { let d = new Date(e.end.date); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); })()
                 : (e.end.dateTime ? new Date(e.end.dateTime).toISOString().slice(0, 10) : undefined);
@@ -191,16 +188,24 @@ app.get('/owner', async (req, res) => {
 
     res.render('owner', {
         title: 'Owner Dashboard',
+        property,
+        ownerProperties,
         bookings,
         error
     });
 });
 
+// - The following routes all take the property from req.query or fallback to first property key.
+function getSelectedProperty(req) {
+    return req.query.property || req.body.property || Object.keys(propertyConfigs)[0];
+}
+
 app.post('/owner/approve/:eventId', async (req, res) => {
-    const oAuth2Client = getOAuth2Client();
-    const calendarId = calendars[PROPERTY_KEY];
+    const property = getSelectedProperty(req);
+    const calendarId = propertyConfigs[property].id;
     const eventId = req.params.eventId;
     try {
+        const oAuth2Client = getOAuth2Client();
         oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
         const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
         const result = await calendar.events.get({ calendarId, eventId });
@@ -213,50 +218,49 @@ app.post('/owner/approve/:eventId', async (req, res) => {
         event.summary = event.summary.replace(/^PENDING /, 'CONFIRMED ');
         const approvalNote = `\nApproved on ${new Date().toISOString()}`;
         event.description = (event.description || '') + approvalNote;
+        await calendar.events.patch({ calendarId, eventId, requestBody: event });
 
-        await calendar.events.patch({
-            calendarId,
-            eventId,
-            requestBody: event
-        });
-
-        res.redirect('/owner');
-        res.redirect('/owner');
+        res.redirect(`/owner?property=${property}`);
     } catch (err) {
         res.status(500).send('Failed to approve booking: ' + err.message);
     }
 });
 
 app.post('/owner/reject/:eventId', async (req, res) => {
-    const oAuth2Client = getOAuth2Client();
-    const calendarId = calendars[PROPERTY_KEY];
+    const property = getSelectedProperty(req);
+    const calendarId = propertyConfigs[property].id;
     const eventId = req.params.eventId;
     try {
+        const oAuth2Client = getOAuth2Client();
         oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
         const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
-        const {  event } = await calendar.events.get({ calendarId, eventId });
+        const result = await calendar.events.get({ calendarId, eventId });
+        const event = result.data;
+
         event.summary = event.summary.replace(/^PENDING /, 'DECLINED ');
         const rejectionNote = `\nDeclined on ${new Date().toISOString()}`;
         event.description = (event.description || '') + rejectionNote;
         await calendar.events.patch({ calendarId, eventId, requestBody: event });
         await calendar.events.delete({ calendarId, eventId });
-        res.redirect('/owner');
+
+        res.redirect(`/owner?property=${property}`);
     } catch (err) {
         res.status(500).send('Failed to reject booking: ' + err.message);
     }
 });
 
 app.get('/owner/edit/:eventId', async (req, res) => {
-    const oAuth2Client = getOAuth2Client();
-    const calendarId = calendars[PROPERTY_KEY];
+    const property = getSelectedProperty(req);
+    const calendarId = propertyConfigs[property].id;
     const eventId = req.params.eventId;
     let error = null;
     let event = {};
     try {
+        const oAuth2Client = getOAuth2Client();
         oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
         const { data } = await google.calendar({ version: 'v3', auth: oAuth2Client })
             .events.get({ calendarId, eventId });
-        // For all-day events, adjust end for exclusive display
+
         let displayEnd = data.end.date
             ? (() => { let d = new Date(data.end.date); d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); })()
             : (data.end.dateTime ? new Date(data.end.dateTime).toISOString().slice(0, 10) : '');
@@ -270,12 +274,13 @@ app.get('/owner/edit/:eventId', async (req, res) => {
     } catch (err) {
         error = 'Could not load booking: ' + err.message;
     }
-    res.render('edit_booking', { title: 'Edit Booking', event, error });
+    res.render('edit_booking', { title: 'Edit Booking', event, error, property });
 });
 
+// Edits with conflict detection
 app.post('/owner/edit/:eventId', async (req, res) => {
-    const oAuth2Client = getOAuth2Client();
-    const calendarId = calendars[PROPERTY_KEY];
+    const property = getSelectedProperty(req);
+    const calendarId = propertyConfigs[property].id;
     const eventId = req.params.eventId;
     const { summary, guest, start, end } = req.body;
     const errors = [];
@@ -286,9 +291,9 @@ app.post('/owner/edit/:eventId', async (req, res) => {
     if (new Date(start) > new Date(end)) {
         errors.push('Start date must be before end date.');
     }
-
     if (errors.length === 0) {
         try {
+            const oAuth2Client = getOAuth2Client();
             oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
             const isFree = await isTimeSlotFree(start, end, calendarId, eventId);
             if (!isFree) {
@@ -309,25 +314,26 @@ app.post('/owner/edit/:eventId', async (req, res) => {
                             end: { date: endDatePadded }
                         }
                     });
-                return res.redirect('/owner');
+                return res.redirect(`/owner?property=${property}`);
             }
         } catch (err) {
             errors.push('Failed to check or update booking: ' + err.message);
         }
     }
-
     res.render('edit_booking', {
         title: 'Edit Booking',
         event: { eventId, summary, guest, start, end },
-        error: errors.join(', ')
+        error: errors.join(', '),
+        property
     });
 });
 
 app.post('/owner/cancel/:eventId', async (req, res) => {
-    const oAuth2Client = getOAuth2Client();
-    const calendarId = calendars[PROPERTY_KEY];
+    const property = getSelectedProperty(req);
+    const calendarId = propertyConfigs[property].id;
     const eventId = req.params.eventId;
     try {
+        const oAuth2Client = getOAuth2Client();
         oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
         await google.calendar({ version: 'v3', auth: oAuth2Client })
             .events.patch({
@@ -340,12 +346,13 @@ app.post('/owner/cancel/:eventId', async (req, res) => {
             });
         await google.calendar({ version: 'v3', auth: oAuth2Client })
             .events.delete({ calendarId, eventId });
-        res.redirect('/owner');
+        res.redirect(`/owner?property=${property}`);
     } catch (err) {
         res.status(500).send('Failed to cancel booking: ' + err.message);
     }
 });
 
+// --- Auth and utility ---
 app.get('/auth/google', (req, res) => {
     const oAuth2Client = getOAuth2Client();
     const authUrl = oAuth2Client.generateAuthUrl({
@@ -365,13 +372,14 @@ app.get('/oauth2callback', async (req, res) => {
 });
 
 app.get('/list-events', async (req, res) => {
+    const property = req.query.property || Object.keys(propertyConfigs)[0];
+    const calendarId = propertyConfigs[property].id;
     const oAuth2Client = getOAuth2Client();
     if (isAuthenticated()) {
         oAuth2Client.setCredentials(JSON.parse(fs.readFileSync(TOKEN_PATH)));
         const calendar = google.calendar({ version: 'v3', auth: oAuth2Client });
-        const propertyCalendarId = calendars[PROPERTY_KEY];
         const events = await calendar.events.list({
-            calendarId: propertyCalendarId,
+            calendarId,
             timeMin: new Date().toISOString(),
             maxResults: 10,
             singleEvents: true,

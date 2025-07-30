@@ -28,6 +28,16 @@
 
         <div class="booking-form">
             <h2>Request Booking</h2>
+            <form method="POST" action="/booking">
+                <label for="property">Property</label>
+                <select name="property" id="property" required>
+                    <% Object.entries(properties).forEach(([propKey, propName]) => { %>
+                    <option value="<%= propKey %>"><%= propName %></option>
+                    <% }); %>
+                </select>
+                <!-- Rest of your booking form (name, dates, etc.) -->
+            </form>
+
             <form action="/booking" method="POST">
                 <label for="dates">Select Dates:</label>
                 <input 
