@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🏡 TerreCoord</h1>
+        <h1><a href="owner">🏡</a> TerreCoord</h1>
         <p>Welcome to my "pied a terre" booking and coordination system! 
             <br><i>Vos séjours, vivez vos espaces!</i>
         </p>
@@ -28,8 +28,14 @@
 
         <div class="booking-form">
             <h2>Request Booking</h2>
-            <form action="/booking" method="POST">
-                <label for="dates">Select Dates:</label>
+            <form method="POST" action="/booking">
+                <label for="property">Property</label>
+                <select name="property" id="property" required>
+                    <% Object.entries(properties).forEach(([propKey, propName]) => { %>
+                    <option value="<%= propKey %>"><%= propName %></option>
+                    <% }); %>
+                </select>
+                <label for="start-date">Arriving:</label>
                 <input 
                     type="date" 
                     id="start-date" 
@@ -37,6 +43,8 @@
                     required 
                     value="<%= (typeof formData !== 'undefined' && formData.startDate) ? formData.startDate : '' %>"
                 >
+
+                <label for="end-date">Departing:</label>
                 <input 
                     type="date" 
                     id="end-date" 
@@ -49,7 +57,8 @@
                 <input 
                     type="text" 
                     id="name" 
-                    name="name" 
+                    name="name"
+                    autocomplete="name" 
                     required 
                     value="<%= (typeof formData !== 'undefined' && formData.name) ? formData.name : '' %>"
                 >
@@ -59,6 +68,7 @@
                     type="email" 
                     id="email" 
                     name="email" 
+                    autocomplete="email" 
                     required 
                     value="<%= (typeof formData !== 'undefined' && formData.email) ? formData.email : '' %>"
                 >
