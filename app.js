@@ -17,7 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 function isAuthenticated() {
     return fs.existsSync(TOKEN_PATH);
-}
+} 
 
 // Conflict detection (ignoring current event if editing)
 async function isTimeSlotFree(startDate, endDate, calendarId, eventIdToIgnore = null) {
