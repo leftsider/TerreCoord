@@ -35,7 +35,7 @@
                     <option value="<%= propKey %>"><%= propName %></option>
                     <% }); %>
                 </select>
-                <label for="dates">Select Dates:</label>
+                <label for="start-date">Arriving:</label>
                 <input 
                     type="date" 
                     id="start-date" 
@@ -43,6 +43,8 @@
                     required 
                     value="<%= (typeof formData !== 'undefined' && formData.startDate) ? formData.startDate : '' %>"
                 >
+
+                <label for="end-date">Departing:</label>
                 <input 
                     type="date" 
                     id="end-date" 
@@ -55,7 +57,8 @@
                 <input 
                     type="text" 
                     id="name" 
-                    name="name" 
+                    name="name"
+                    autocomplete="name" 
                     required 
                     value="<%= (typeof formData !== 'undefined' && formData.name) ? formData.name : '' %>"
                 >
@@ -65,6 +68,7 @@
                     type="email" 
                     id="email" 
                     name="email" 
+                    autocomplete="email" 
                     required 
                     value="<%= (typeof formData !== 'undefined' && formData.email) ? formData.email : '' %>"
                 >
