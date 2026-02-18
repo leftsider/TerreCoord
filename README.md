@@ -336,7 +336,7 @@ node_modules/
 
 ```bash
 # Install Heroku CLI, then:
-heroku create bryandb-coordinator
+heroku create terrecoord
 heroku config:set GOOGLE_CLIENT_ID=xxx
 heroku config:set GOOGLE_CLIENT_SECRET=xxx
 heroku config:set EMAIL_USER=xxx
@@ -363,29 +363,6 @@ railway up
 2. Set environment variables in app settings
 3. Deploy
 
-## 🧪 Testing
-
-### Manual Testing Checklist
-
-- [ ] Submit booking with valid dates
-- [ ] Submit booking with conflicting dates (should fail)
-- [ ] Approve pending booking
-- [ ] Reject pending booking  
-- [ ] Edit approved booking
-- [ ] Cancel confirmed booking
-- [ ] Download PDF from dashboard
-- [ ] Verify email notifications received
-- [ ] Test multi-property switching
-- [ ] Test responsive design on mobile
-
-### Sample Test Booking
-
-```
-Name: Test User
-Email: test@example.com
-Check-in: Tomorrow
-Check-out: Day after tomorrow
-```
 
 ## 📚 Additional Resources
 
@@ -401,35 +378,3 @@ This is a personal project, but suggestions welcome via issues.
 ## 📄 License
 
 MIT License - Use freely for personal projects.
-
-## 🎉 What's New in v1.0
-
-✨ **Complete Implementation**
-- All PRD requirements delivered
-- PDF customs documentation
-- Email notification system
-- Professional UI/UX design
-- Full error handling
-- Responsive mobile design
-
-🎨 **Design System**
-- Modern color palette
-- Dark mode support
-- Consistent spacing
-- Accessible components
-
-📧 **Email Templates**
-- Booking confirmation
-- Approval notification
-- Rejection message
-- Modification alerts
-
-📄 **PDF Certificates**
-- Professional formatting
-- Immigration-ready
-- Auto-attached to emails
-- Downloadable anytime
-
----
-
-**Built with ❤️ for family property coordination**
