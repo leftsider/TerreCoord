@@ -1,0 +1,28 @@
+{
+  "name": "bryandb-property-coordinator",
+  "version": "1.0.0",
+  "description": "Family-friendly vacation property booking coordinator with customs documentation",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "keywords": ["booking", "property-management", "calendar", "customs-documentation"],
+  "author": "Bryan",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "ejs": "^3.1.9",
+    "googleapis": "^128.0.0",
+    "nodemailer": "^6.9.7",
+    "pdfkit": "^0.14.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

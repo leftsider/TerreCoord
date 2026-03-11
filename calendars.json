@@ -1,0 +1,10 @@
+{
+  "beachhouse": {
+    "name": "Coastal Beach House",
+    "id": "your_calendar_id_1@group.calendar.google.com"
+  },
+  "mountaincabin": {
+    "name": "Mountain View Cabin",
+    "id": "your_calendar_id_2@group.calendar.google.com"
+  }
+}

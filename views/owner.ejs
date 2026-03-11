@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | BryandB</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header__content">
+                <a href="/" class="header__brand">🏡 BryandB</a>
+                <nav class="header__nav">
+                    <a href="/">Book a Stay</a>
+                    <a href="/owner?property=<%= property %>">Owner Dashboard</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container container-lg">
+            <div class="flex justify-between items-center mb-8" style="flex-wrap: wrap; gap: var(--space-4);">
+                <div>
+                    <h1 style="margin-bottom: var(--space-2);">Owner Dashboard</h1>
+                    <p style="color: var(--text-secondary); margin: 0;">Manage bookings for <%= propertyName %></p>
+                </div>
+
+                <div class="property-selector">
+                    <label for="propertySelect" class="property-selector__label">Property:</label>
+                    <select id="propertySelect" class="form-select property-selector__select" onchange="location.href='/owner?property=' + this.value">
+                        <% for (const [key, name] of Object.entries(ownerProperties)) { %>
+                            <option value="<%= key %>" <%= property === key ? 'selected' : '' %>><%= name %></option>
+                        <% } %>
+                    </select>
+                </div>
+            </div>
+
+            <% if (error) { %>
+                <div class="alert alert--error">
+                    <div class="alert__icon">⚠️</div>
+                    <div class="alert__content">
+                        <div class="alert__title">Error Loading Bookings</div>
+                        <p class="alert__message"><%= error %></p>
+                    </div>
+                </div>
+            <% } %>
+
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-card__value"><%= bookings.length %></div>
+                    <div class="stat-card__label">Total Bookings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value" style="color: var(--color-pending);">
+                        <%= bookings.filter(b => b.status === 'pending').length %>
+                    </div>
+                    <div class="stat-card__label">Pending Review</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value" style="color: var(--color-success);">
+                        <%= bookings.filter(b => b.status === 'confirmed' || b.status === 'approved').length %>
+                    </div>
+                    <div class="stat-card__label">Confirmed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-card__value" style="color: var(--color-danger);">
+                        <%= bookings.filter(b => b.status === 'declined').length %>
+                    </div>
+                    <div class="stat-card__label">Declined</div>
+                </div>
+            </div>
+
+            <!-- Bookings Table -->
+            <div class="card">
+                <div class="card__header">
+                    <h2 class="card__title">Upcoming Bookings</h2>
+                    <p class="card__subtitle">View and manage all booking requests</p>
+                </div>
+
+                <div class="card__body">
+                    <% if (bookings.length === 0) { %>
+                        <div class="empty-state">
+                            <div class="empty-state__icon">📅</div>
+                            <h3 class="empty-state__title">No Bookings Yet</h3>
+                            <p class="empty-state__message">
+                                When guests submit booking requests, they'll appear here for your review.
+                            </p>
+                        </div>
+                    <% } else { %>
+                        <div class="table--responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Status</th>
+                                        <th>Guest</th>
+                                        <th>Check-in</th>
+                                        <th>Check-out</th>
+                                        <th>Nights</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% bookings.forEach(booking => { 
+                                        const nights = Math.ceil((new Date(booking.end) - new Date(booking.start)) / (1000 * 60 * 60 * 24));
+                                    %>
+                                        <tr>
+                                            <td>
+                                                <% if (booking.status === 'pending') { %>
+                                                    <span class="badge badge--pending">⏳ Pending</span>
+                                                <% } else if (booking.status === 'confirmed' || booking.status === 'approved') { %>
+                                                    <span class="badge badge--success">✅ Confirmed</span>
+                                                <% } else if (booking.status === 'declined') { %>
+                                                    <span class="badge badge--danger">❌ Declined</span>
+                                                <% } else { %>
+                                                    <span class="badge badge--secondary"><%= booking.status %></span>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong style="color: var(--text-primary);"><%= booking.guestName %></strong>
+                                                    <% if (booking.guestEmail) { %>
+                                                        <br>
+                                                        <small style="color: var(--text-secondary);">
+                                                            <a href="mailto:<%= booking.guestEmail %>" style="color: var(--color-primary);"><%= booking.guestEmail %></a>
+                                                        </small>
+                                                    <% } %>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong style="color: var(--text-primary);">
+                                                    <%= new Date(booking.start).toLocaleDateString('en-US', { 
+                                                        month: 'short', 
+                                                        day: 'numeric', 
+                                                        year: 'numeric' 
+                                                    }) %>
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                <strong style="color: var(--text-primary);">
+                                                    <%= new Date(booking.end).toLocaleDateString('en-US', { 
+                                                        month: 'short', 
+                                                        day: 'numeric', 
+                                                        year: 'numeric' 
+                                                    }) %>
+                                                </strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge--secondary"><%= nights %> <%= nights === 1 ? 'night' : 'nights' %></span>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <% if (booking.status === 'pending') { %>
+                                                        <form method="POST" action="/owner/approve/<%= booking.eventId %>?property=<%= property %>" style="display: inline;">
+                                                            <button type="submit" class="btn btn--success btn--sm" title="Approve booking">
+                                                                ✓ Approve
+                                                            </button>
+                                                        </form>
+                                                        <form method="POST" action="/owner/reject/<%= booking.eventId %>?property=<%= property %>" style="display: inline;">
+                                                            <button type="submit" class="btn btn--danger btn--sm" title="Reject booking" onclick="return confirm('Are you sure you want to reject this booking?')">
+                                                                ✗ Reject
+                                                            </button>
+                                                        </form>
+                                                    <% } %>
+                                                    
+                                                    <% if (booking.status === 'confirmed' || booking.status === 'approved') { %>
+                                                        <a href="/owner/download-pdf/<%= booking.eventId %>?property=<%= property %>" class="btn btn--secondary btn--sm" title="Download customs certificate">
+                                                            📄 PDF
+                                                        </a>
+                                                    <% } %>
+                                                    
+                                                    <a href="/owner/edit/<%= booking.eventId %>?property=<%= property %>" class="btn btn--secondary btn--sm" title="Edit booking details">
+                                                        ✏️ Edit
+                                                    </a>
+                                                    
+                                                    <form method="POST" action="/owner/cancel/<%= booking.eventId %>?property=<%= property %>" style="display: inline;">
+                                                        <button type="submit" class="btn btn--danger btn--sm" title="Cancel booking" onclick="return confirm('Are you sure you want to cancel this booking? The guest will be notified.')">
+                                                            🗑️ Cancel
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }); %>
+                                </tbody>
+                            </table>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="card mt-6">
+                <div class="card__header">
+                    <h3 class="card__title">Quick Actions</h3>
+                </div>
+                <div class="card__body">
+                    <div class="flex gap-4" style="flex-wrap: wrap;">
+                        <a href="/list-events?property=<%= property %>" class="btn btn--outline">
+                            📋 View All Events (JSON)
+                        </a>
+                        <a href="/auth/google" class="btn btn--outline">
+                            🔄 Refresh Google Calendar Auth
+                        </a>
+                        <a href="/health" class="btn btn--outline">
+                            💚 Check System Health
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div style="margin-top: var(--space-8); padding: var(--space-6); background-color: var(--bg-primary); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <h4 style="margin-bottom: var(--space-4); color: var(--text-primary);">📖 Status Guide</h4>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-4);">
+                    <div>
+                        <span class="badge badge--pending">⏳ Pending</span>
+                        <p style="margin-top: var(--space-2); font-size: 0.875rem; color: var(--text-secondary);">
+                            Awaiting your approval or rejection
+                        </p>
+                    </div>
+                    <div>
+                        <span class="badge badge--success">✅ Confirmed</span>
+                        <p style="margin-top: var(--space-2); font-size: 0.875rem; color: var(--text-secondary);">
+                            Booking approved and guest notified
+                        </p>
+                    </div>
+                    <div>
+                        <span class="badge badge--danger">❌ Declined</span>
+                        <p style="margin-top: var(--space-2); font-size: 0.875rem; color: var(--text-secondary);">
+                            Booking rejected (removed from calendar)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__content">
+                <div class="footer__brand">BryandB Property Coordinator</div>
+                <div class="footer__links">
+                    <a href="/" class="footer__link">Book Stay</a>
+                    <a href="/owner" class="footer__link">Owner Dashboard</a>
+                    <a href="/health" class="footer__link">System Status</a>
+                </div>
+                <p style="margin: 0; font-size: 0.75rem;">
+                    © <%= new Date().getFullYear() %> BryandB. Family property coordination made simple.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/client.js"></script>
+</body>
+</html>
