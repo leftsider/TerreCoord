@@ -1,5 +1,5 @@
 {
-  "name": "bryandb-property-coordinator",
+  "name": "TerreCoord-property-coordinator",
   "version": "1.0.0",
   "description": "Family-friendly vacation property booking coordinator with customs documentation",
   "main": "app.js",

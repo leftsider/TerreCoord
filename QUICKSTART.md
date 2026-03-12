@@ -2,7 +2,7 @@
 
 
 ## 🎯 Goal
-Get BryandB running locally in under 10 minutes.
+Get TerreCoord running locally in under 10 minutes.
 
 ### Codespaces note
 If you're developing in GitHub Codespaces, do not rely on localhost URLs in the browser.  
@@ -90,7 +90,7 @@ npm start
 
 **Expected output:**
 ```
-🏡 BryandB Property Coordinator running on port 3000
+🏡 TerreCoord Property Coordinator running on port 3000
 📧 Email notifications: Disabled
 📄 PDF generation: Enabled
 ```
@@ -130,7 +130,7 @@ npm start
 
 ## ✅ Success!
 
-**You're now running BryandB locally!**
+**You're now running TerreCoord locally!**
 
 **What's working:**
 - ✅ Booking form submission
@@ -161,7 +161,7 @@ npm start
    EMAIL_SERVICE=gmail
    EMAIL_USER=your-email@gmail.com
    EMAIL_PASSWORD=xxxx xxxx xxxx xxxx
-   EMAIL_FROM_NAME=BryandB Property Coordinator
+   EMAIL_FROM_NAME=TerreCoord Property Coordinator
    OWNER_EMAIL=owner@example.com
    ```
 
@@ -184,7 +184,7 @@ Edit `views/index.ejs`, `views/owner.ejs`, `views/edit_booking.ejs`:
 
 ```html
 <!-- Find and replace -->
-<a href="/" class="header__brand">🏡 BryandB</a>
+<a href="/" class="header__brand">🏡 TerreCoord</a>
 
 <!-- Change to -->
 <a href="/" class="header__brand">🏡 Your Property Name</a>
@@ -362,7 +362,7 @@ Shows system status and enabled features.
 
 ## 🎉 Congratulations!
 
-**You've successfully set up BryandB Property Coordinator!**
+**You've successfully set up TerreCoord Property Coordinator!**
 
 Your family can now:
 - Submit booking requests online

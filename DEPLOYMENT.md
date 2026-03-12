@@ -1,4 +1,4 @@
-# 🚀 Deployment Guide - BryandB Property Coordinator
+# 🚀 Deployment Guide - TerreCoord Property Coordinator
 
 ## Pre-Deployment Checklist
 
@@ -49,10 +49,10 @@ EOF
 ```bash
 # Install Heroku CLI: https://devcenter.heroku.com/articles/heroku-cli
 heroku login
-heroku create bryandb-coordinator
+heroku create TerreCoord-coordinator
 
 # Or use custom domain
-heroku create bryandb-coordinator --region us
+heroku create TerreCoord-coordinator --region us
 ```
 
 #### Step 3: Configure Environment Variables
@@ -62,13 +62,13 @@ heroku config:set NODE_ENV=production
 heroku config:set PORT=3000
 heroku config:set GOOGLE_CLIENT_ID=your_client_id
 heroku config:set GOOGLE_CLIENT_SECRET=your_client_secret
-heroku config:set GOOGLE_REDIRECT_URI=https://bryandb-coordinator.herokuapp.com/oauth2callback
+heroku config:set GOOGLE_REDIRECT_URI=https://TerreCoord-coordinator.herokuapp.com/oauth2callback
 heroku config:set EMAIL_SERVICE=gmail
 heroku config:set EMAIL_USER=your-email@gmail.com
 heroku config:set EMAIL_PASSWORD=your_app_password
-heroku config:set EMAIL_FROM_NAME="BryandB Property Coordinator"
-heroku config:set APP_NAME=BryandB
-heroku config:set APP_URL=https://bryandb-coordinator.herokuapp.com
+heroku config:set EMAIL_FROM_NAME="TerreCoord Property Coordinator"
+heroku config:set APP_NAME=TerreCoord
+heroku config:set APP_URL=https://TerreCoord-coordinator.herokuapp.com
 heroku config:set OWNER_EMAIL=owner@example.com
 heroku config:set ENABLE_EMAIL_NOTIFICATIONS=true
 heroku config:set ENABLE_PDF_GENERATION=true
@@ -80,7 +80,7 @@ heroku config:set ENABLE_CUSTOMS_DOCS=true
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
 2. Navigate to APIs & Services → Credentials
 3. Edit your OAuth 2.0 Client
-4. Add Authorized redirect URI: `https://bryandb-coordinator.herokuapp.com/oauth2callback`
+4. Add Authorized redirect URI: `https://TerreCoord-coordinator.herokuapp.com/oauth2callback`
 5. Save changes
 
 #### Step 5: Deploy
@@ -99,7 +99,7 @@ heroku open
 
 #### Step 6: Authenticate
 
-Visit: `https://bryandb-coordinator.herokuapp.com/auth/google`
+Visit: `https://TerreCoord-coordinator.herokuapp.com/auth/google`
 
 ---
 
@@ -195,8 +195,8 @@ sudo yum install -y nodejs
 sudo yum install -y git
 
 # Clone repository
-git clone https://github.com/yourusername/bryandb-coordinator.git
-cd bryandb-coordinator
+git clone https://github.com/yourusername/TerreCoord-coordinator.git
+cd TerreCoord-coordinator
 ```
 
 #### Step 3: Configure Environment
@@ -215,7 +215,7 @@ nano .env
 sudo npm install -g pm2
 
 # Start application
-pm2 start app.js --name bryandb
+pm2 start app.js --name TerreCoord
 
 # Save PM2 configuration
 pm2 save
@@ -230,7 +230,7 @@ pm2 startup
 sudo yum install -y nginx
 
 # Create config
-sudo nano /etc/nginx/conf.d/bryandb.conf
+sudo nano /etc/nginx/conf.d/TerreCoord.conf
 ```
 
 ```nginx
@@ -301,7 +301,7 @@ heroku logs --tail
 railway logs
 
 # PM2 (EC2)
-pm2 logs bryandb
+pm2 logs TerreCoord
 pm2 monit
 ```
 
@@ -366,10 +366,10 @@ heroku ps:scale web=3
 
 ```bash
 # PostgreSQL example
-pg_dump bryandb > backup.sql
+pg_dump TerreCoord > backup.sql
 
 # MongoDB example
-mongodump --db bryandb --out /backup
+mongodump --db TerreCoord --out /backup
 ```
 
 ### 2. Configuration Backups
@@ -429,8 +429,8 @@ GOOGLE_REDIRECT_URI=https://your-domain.com/oauth2callback
 EMAIL_SERVICE=gmail
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASSWORD=16_char_app_password
-EMAIL_FROM_NAME=BryandB Property Coordinator
-APP_NAME=BryandB
+EMAIL_FROM_NAME=TerreCoord Property Coordinator
+APP_NAME=TerreCoord
 APP_URL=https://your-domain.com
 OWNER_EMAIL=owner@example.com
 ```
@@ -521,7 +521,7 @@ heroku logs --tail
 
 ## Success! 🎉
 
-Your BryandB Property Coordinator is now live and ready to handle family bookings with customs documentation.
+Your TerreCoord Property Coordinator is now live and ready to handle family bookings with customs documentation.
 
 **Next steps:**
 1. Share booking URL with family/friends

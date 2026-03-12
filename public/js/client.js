@@ -1,4 +1,4 @@
-// Client-side JavaScript for BryandB Property Coordinator
+// Client-side JavaScript for TerreCoord Property Coordinator
 // Provides form validation, date handling, and UX enhancements
 
 (function() {
@@ -326,5 +326,5 @@
         });
     });
 
-    console.log('🏡 BryandB Client Scripts Loaded');
+    console.log('🏡 TerreCoord Client Scripts Loaded');
 })();

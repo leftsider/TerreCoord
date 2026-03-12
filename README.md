@@ -1,4 +1,4 @@
-# 🏡 BryandB Property Coordinator v1.0
+# 🏡 TerreCoord Property Coordinator v1.0
 
 A comprehensive web application for coordinating vacation property bookings among family and friends, with built-in customs documentation generation.
 
@@ -52,7 +52,7 @@ A comprehensive web application for coordinating vacation property bookings amon
 ## 📦 Project Structure
 
 ```
-bryandb-property-coordinator/
+TerreCoord-property-coordinator/
 ├── app.js                 # Main Express server with all routes
 ├── googleAuth.js          # OAuth 2.0 configuration (existing)
 ├── package.json           # Dependencies and scripts
@@ -343,7 +343,7 @@ node_modules/
 
 ```bash
 # Install Heroku CLI, then:
-heroku create bryandb-coordinator
+heroku create TerreCoord-coordinator
 heroku config:set GOOGLE_CLIENT_ID=xxx
 heroku config:set GOOGLE_CLIENT_SECRET=xxx
 heroku config:set EMAIL_USER=xxx
@@ -352,7 +352,7 @@ git push heroku main
 ```
 
 Update redirect URI in Google Console to:
-`https://bryandb-coordinator.herokuapp.com/oauth2callback`
+`https://TerreCoord-coordinator.herokuapp.com/oauth2callback`
 
 ### Railway
 

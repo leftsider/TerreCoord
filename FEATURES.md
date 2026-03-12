@@ -1,8 +1,8 @@
-# 📖 Feature Documentation - BryandB Property Coordinator
+# 📖 Feature Documentation - TerreCoord Property Coordinator
 
 ## Overview
 
-BryandB Property Coordinator is a complete booking management system designed specifically for family and friends to coordinate vacation property usage. Unlike Airbnb or VRBO, it's 100% private, requires no payments, and generates customs documentation automatically.
+TerreCoord Property Coordinator is a complete booking management system designed specifically for family and friends to coordinate vacation property usage. Unlike Airbnb or VRBO, it's 100% private, requires no payments, and generates customs documentation automatically.
 
 ---
 
@@ -220,7 +220,7 @@ We've received your booking request for [Property Name]:
 Your request is pending approval. You'll receive another email once reviewed.
 
 Best regards,
-BryandB Team
+TerreCoord Team
 ```
 
 #### New Booking Alert (to Owner)
@@ -291,7 +291,7 @@ We're sorry, but your booking request could not be approved for the requested da
 The property may already be booked. Please feel free to submit another request for different dates.
 
 Best regards,
-BryandB Team
+TerreCoord Team
 ```
 
 #### Modification Alert (to Guest)
@@ -314,7 +314,7 @@ Your booking has been updated:
 - New Check-out: [Date]
 
 Best regards,
-BryandB Team
+TerreCoord Team
 ```
 
 #### Cancellation Notice (to Guest)
@@ -336,7 +336,7 @@ Your booking for [Property Name] has been cancelled.
 If you have questions, please contact the property owner.
 
 Best regards,
-BryandB Team
+TerreCoord Team
 ```
 
 ---
@@ -632,13 +632,13 @@ System automatically detects user's OS preference and applies dark theme.
 ## 🎯 Success Stories
 
 **Use Case 1: International Pet Travel**
-Owner travels to/from country with pet. Customs requires proof of property occupancy. BryandB generates professional certificate showing occupancy dates, satisfying customs requirements.
+Owner travels to/from country with pet. Customs requires proof of property occupancy. TerreCoord generates professional certificate showing occupancy dates, satisfying customs requirements.
 
 **Use Case 2: Family Coordination**
-Extended family shares beach house. BryandB prevents double bookings, ensures fair usage, and keeps everyone informed via email notifications.
+Extended family shares beach house. TerreCoord prevents double bookings, ensures fair usage, and keeps everyone informed via email notifications.
 
 **Use Case 3: Multi-Property Management**
-Owner has both beach house and mountain cabin. BryandB's property switcher allows managing both from single dashboard without confusion.
+Owner has both beach house and mountain cabin. TerreCoord's property switcher allows managing both from single dashboard without confusion.
 
 ---
 
@@ -660,4 +660,4 @@ Owner has both beach house and mountain cabin. BryandB's property switcher allow
 
 ---
 
-**Enjoy stress-free property coordination with BryandB! 🏡**
+**Enjoy stress-free property coordination with TerreCoord! 🏡**
