@@ -1,7 +1,19 @@
 # ⚡ Quick Start Guide - Get Running in 10 Minutes
 
+
 ## 🎯 Goal
 Get BryandB running locally in under 10 minutes.
+
+### Codespaces note
+If you're developing in GitHub Codespaces, do not rely on localhost URLs in the browser.  
+Use the forwarded URL from the PORTS tab instead, which will look like:
+
+https://CODESPACENAME-3000.app.github.dev
+
+If you use Google OAuth, set the port visibility to Public and use that forwarded URL for:
+- GOOGLE_REDIRECT_URI
+- APP_URL
+- your Google Cloud OAuth redirect URI
 
 ---
 
