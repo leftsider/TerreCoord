@@ -2,32 +2,174 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title><%= title %></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %> | TerreCoord</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .edit-form { max-width: 400px; margin: 35px auto; background: #fafcff; padding: 25px; border-radius: 6px; }
-        .edit-form label, .edit-form input { display:block; width:100%; margin-bottom:12px; }
-        .edit-form button { margin-top: 10px; }
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Edit Booking</h2>
-        <% if (error) { %>
-            <div class="error"><%= error %></div>
-        <% } %>
-        <form class="edit-form" action="/owner/edit/<%= event.eventId %>" method="POST">
-            <label>Booking Title</label>
-            <input type="text" name="summary" value="<%= event.summary %>" required>
-            <label>Guest Name/Email</label>
-            <input type="text" name="guest" value="<%= event.guest %>" required>
-            <label>Start Date</label>
-            <input type="date" name="start" value="<%= event.start %>" required>
-            <label>End Date</label>
-            <input type="date" name="end" value="<%= event.end %>" required>
-            <button type="submit" class="action-btn approve">Save Changes</button>
-            <a href="/owner" style="margin-left:18px;">Back</a>
-        </form>
-    </div>
+    <header class="header">
+        <div class="container">
+            <div class="header__content">
+                <a href="/" class="header__brand">🏡 TerreCoord</a>
+                <nav class="header__nav">
+                    <a href="/">Book a Stay</a>
+                    <a href="/owner?property=<%= property %>">Owner Dashboard</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container container-sm">
+            <div style="margin-bottom: var(--space-6);">
+                <a href="/owner?property=<%= property %>" style="color: var(--color-primary); display: inline-flex; align-items: center; gap: var(--space-2);">
+                    ← Back to Dashboard
+                </a>
+            </div>
+
+            <div class="card">
+                <div class="card__header">
+                    <h1 class="card__title">Edit Booking</h1>
+                    <p class="card__subtitle">Modify booking details for <%= propertyName %></p>
+                </div>
+
+                <div class="card__body">
+                    <% if (error) { %>
+                        <div class="alert alert--error">
+                            <div class="alert__icon">⚠️</div>
+                            <div class="alert__content">
+                                <div class="alert__title">Error</div>
+                                <p class="alert__message"><%= error %></p>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <% if (!event.eventId) { %>
+                        <div class="empty-state">
+                            <div class="empty-state__icon">❌</div>
+                            <h3 class="empty-state__title">Booking Not Found</h3>
+                            <p class="empty-state__message">
+                                The booking you're trying to edit could not be found or has been deleted.
+                            </p>
+                            <a href="/owner?property=<%= property %>" class="btn btn--primary" style="margin-top: var(--space-4);">
+                                Return to Dashboard
+                            </a>
+                        </div>
+                    <% } else { %>
+                        <form method="POST" action="/owner/edit/<%= event.eventId %>?property=<%= property %>" class="form" id="editBookingForm">
+                            <div class="form-group">
+                                <label for="summary" class="form-label form-label--required">Booking Title</label>
+                                <input 
+                                    type="text" 
+                                    id="summary" 
+                                    name="summary" 
+                                    class="form-input" 
+                                    value="<%= event.summary || '' %>"
+                                    placeholder="e.g., CONFIRMED Booking: John Doe"
+                                    required
+                                >
+                                <p class="form-hint">The title as it appears in the calendar</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="guestName" class="form-label form-label--required">Guest Name</label>
+                                <input 
+                                    type="text" 
+                                    id="guestName" 
+                                    name="guestName" 
+                                    class="form-input" 
+                                    value="<%= event.guestName || '' %>"
+                                    placeholder="John Doe"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="guestEmail" class="form-label">Guest Email</label>
+                                <input 
+                                    type="email" 
+                                    id="guestEmail" 
+                                    name="guestEmail" 
+                                    class="form-input" 
+                                    value="<%= event.guestEmail || '' %>"
+                                    placeholder="john@example.com"
+                                >
+                                <p class="form-hint">Optional - used for sending notifications</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="start" class="form-label form-label--required">Check-in Date</label>
+                                <input 
+                                    type="date" 
+                                    id="start" 
+                                    name="start" 
+                                    class="form-input"
+                                    value="<%= event.start || '' %>"
+                                    required
+                                >
+                            </div>
+
+                            <div class="form-group">
+                                <label for="end" class="form-label form-label--required">Check-out Date</label>
+                                <input 
+                                    type="date" 
+                                    id="end" 
+                                    name="end" 
+                                    class="form-input"
+                                    value="<%= event.end || '' %>"
+                                    required
+                                >
+                                <p class="form-hint">Guest's last night at the property</p>
+                            </div>
+
+                            <div style="margin-top: var(--space-8); padding: var(--space-4); background-color: var(--color-primary-light); border-radius: var(--radius-md); border-left: 4px solid var(--color-primary);">
+                                <p style="margin: 0; font-size: 0.875rem; color: var(--text-primary);">
+                                    💡 <strong>Note:</strong> Changes will be validated against existing bookings. If the guest has been approved, they'll receive an email notification about the updated dates.
+                                </p>
+                            </div>
+
+                            <div class="card__footer" style="margin-top: var(--space-6); padding-top: var(--space-6); border-top: 1px solid var(--border-color); display: flex; gap: var(--space-3); justify-content: flex-end;">
+                                <a href="/owner?property=<%= property %>" class="btn btn--secondary">
+                                    Cancel
+                                </a>
+                                <button type="submit" class="btn btn--primary">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Helpful Tips -->
+            <div style="margin-top: var(--space-8); padding: var(--space-6); background-color: var(--bg-primary); border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+                <h4 style="margin-bottom: var(--space-4); color: var(--text-primary);">✏️ Editing Tips</h4>
+                <ul style="margin: 0; padding-left: var(--space-6); color: var(--text-secondary); font-size: 0.875rem;">
+                    <li style="margin-bottom: var(--space-2);">The booking title should include status (PENDING, CONFIRMED, etc.)</li>
+                    <li style="margin-bottom: var(--space-2);">Dates will be checked for conflicts with other bookings</li>
+                    <li style="margin-bottom: var(--space-2);">If guest email is provided, they'll be notified of changes</li>
+                    <li>Changes are synced to Google Calendar immediately</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__content">
+                <div class="footer__brand">TerreCoord Property Coordinator</div>
+                <div class="footer__links">
+                    <a href="/" class="footer__link">Book Stay</a>
+                    <a href="/owner" class="footer__link">Owner Dashboard</a>
+                    <a href="/health" class="footer__link">System Status</a>
+                </div>
+                <p style="margin: 0; font-size: 0.75rem;">
+                    © <%= new Date().getFullYear() %> TerreCoord. Family property coordination made simple.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/client.js"></script>
 </body>
 </html>

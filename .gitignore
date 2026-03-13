@@ -1,51 +1,50 @@
-# Node.js and dependencies
+# Dependencies
 node_modules/
-.npm
 package-lock.json
-yarn.lock
-
-# Environment variables
-.env
-.env.*
-!.env.example
-
-# Google API credentials
-credentials.json
-token.json
-
-# Logs
-*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Build artifacts
-dist/
-out/
-.next/
-.nuxt/
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*.backup
 
-# Coverage reports
-coverage/
-.nyc_output/
+# Calendar credentials
+calendars.json
 
-# Editor/IDE files
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# OAuth tokens
+token.json
+credentials.json
 
-# System files
+# Logs
+logs/
+*.log
+
+# OS files
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
 
-# Sensitive files
-*.pem
-*.key
-*.crt
+# Build outputs (if any)
+dist/
+build/
 
-# Calendar IDs
-calendars.json
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# PDF outputs (generated on-the-fly)
+*.pdf
+
+# Backup files
+*.backup
+*.bak
+
+# Test coverage
+coverage/

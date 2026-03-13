@@ -3,79 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
+    <title><%= title %> | TerreCoord</title>
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <h1><a href="owner">🏡</a> TerreCoord</h1>
-        <p>Welcome to my "pied a terre" booking and coordination system! 
-            <br><i>Vos séjours, vivez vos espaces!</i>
-        </p>
-        
-        <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
-            <div class="error">
-                <% errors.forEach(function(error) { %>
-                    <p><%= error %></p>
-                <% }); %>
+    <header class="header">
+        <div class="container">
+            <div class="header__content">
+                <a href="/" class="header__brand">🏡 TerreCoord</a>
+                <nav class="header__nav">
+                    <a href="/">Book a Stay</a>
+                    <a href="/owner">Owner Dashboard</a>
+                </nav>
             </div>
-        <% } %>
-        <% if (typeof success !== 'undefined') { %>
-            <div class="success">
-                <p><%= success %></p>
-            </div>
-        <% } %>
-
-        <div class="booking-form">
-            <h2>Request Booking</h2>
-            <form method="POST" action="/booking">
-                <label for="property">Property</label>
-                <select name="property" id="property" required>
-                    <% Object.entries(properties).forEach(([propKey, propName]) => { %>
-                    <option value="<%= propKey %>"><%= propName %></option>
-                    <% }); %>
-                </select>
-                <label for="start-date">Arriving:</label>
-                <input 
-                    type="date" 
-                    id="start-date" 
-                    name="startDate" 
-                    required 
-                    value="<%= (typeof formData !== 'undefined' && formData.startDate) ? formData.startDate : '' %>"
-                >
-
-                <label for="end-date">Departing:</label>
-                <input 
-                    type="date" 
-                    id="end-date" 
-                    name="endDate" 
-                    required 
-                    value="<%= (typeof formData !== 'undefined' && formData.endDate) ? formData.endDate : '' %>"
-                >
-                
-                <label for="name">Your Name:</label>
-                <input 
-                    type="text" 
-                    id="name" 
-                    name="name"
-                    autocomplete="name" 
-                    required 
-                    value="<%= (typeof formData !== 'undefined' && formData.name) ? formData.name : '' %>"
-                >
-                
-                <label for="email">Email:</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    autocomplete="email" 
-                    required 
-                    value="<%= (typeof formData !== 'undefined' && formData.email) ? formData.email : '' %>"
-                >
-                
-                <button type="submit">Check Availability</button>
-            </form>
         </div>
-    </div>
+    </header>
+
+    <main class="main">
+        <div class="container container-sm">
+            <div class="card">
+                <div class="card__header">
+                    <h1 class="card__title text-center">Book Your Stay</h1>
+                    <p class="card__subtitle text-center">Request a booking at one of our family properties</p>
+                </div>
+
+                <div class="card__body">
+                    <% if (errors && errors.length > 0) { %>
+                        <div class="alert alert--error">
+                            <div class="alert__icon">⚠️</div>
+                            <div class="alert__content">
+                                <div class="alert__title">Please correct the following errors:</div>
+                                <ul style="margin: var(--space-2) 0 0 var(--space-5); padding: 0;">
+                                    <% errors.forEach(error => { %>
+                                        <li class="alert__message"><%= error %></li>
+                                    <% }); %>
+                                </ul>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <% if (success) { %>
+                        <div class="alert alert--success">
+                            <div class="alert__icon">✅</div>
+                            <div class="alert__content">
+                                <div class="alert__title">Success!</div>
+                                <p class="alert__message"><%= success %></p>
+                            </div>
+                        </div>
+                    <% } %>
+
+                    <form method="POST" action="/booking" class="form" id="bookingForm">
+                        <div class="form-group">
+                            <label for="property" class="form-label form-label--required">Property</label>
+                            <select name="property" id="property" class="form-select" required>
+                                <% for (const [key, name] of Object.entries(properties)) { %>
+                                    <option value="<%= key %>" <%= formData.property === key ? 'selected' : '' %>><%= name %></option>
+                                <% } %>
+                            </select>
+                            <p class="form-hint">Select which property you'd like to book</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="name" class="form-label form-label--required">Your Name</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name" 
+                                class="form-input" 
+                                value="<%= formData.name || '' %>"
+                                placeholder="John Doe"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label form-label--required">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                class="form-input" 
+                                value="<%= formData.email || '' %>"
+                                placeholder="john@example.com"
+                                required
+                            >
+                            <p class="form-hint">We'll send booking confirmation to this address</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="startDate" class="form-label form-label--required">Check-in Date</label>
+                            <input 
+                                type="date" 
+                                id="startDate" 
+                                name="startDate" 
+                                class="form-input"
+                                value="<%= formData.startDate || '' %>"
+                                min="<%= new Date().toISOString().split('T')[0] %>"
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group">
+                            <label for="endDate" class="form-label form-label--required">Check-out Date</label>
+                            <input 
+                                type="date" 
+                                id="endDate" 
+                                name="endDate" 
+                                class="form-input"
+                                value="<%= formData.endDate || '' %>"
+                                min="<%= new Date().toISOString().split('T')[0] %>"
+                                required
+                            >
+                            <p class="form-hint">Your last night at the property</p>
+                        </div>
+
+                        <button type="submit" class="btn btn--primary btn--full btn--lg">
+                            Submit Booking Request
+                        </button>
+                    </form>
+                </div>
+
+                <div class="card__footer" style="justify-content: center; border: none;">
+                    <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">
+                        Your request will be reviewed by the property owner
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--space-8); text-align: center;">
+                <p style="color: var(--text-secondary); font-size: 0.875rem;">
+                    💡 <strong>Tip:</strong> Requests are typically reviewed within 24-48 hours. You'll receive an email confirmation once approved.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer__content">
+                <div class="footer__brand">TerreCoord Property Coordinator</div>
+                <div class="footer__links">
+                    <a href="/" class="footer__link">Book Stay</a>
+                    <a href="/owner" class="footer__link">Owner Dashboard</a>
+                    <a href="/health" class="footer__link">System Status</a>
+                </div>
+                <p style="margin: 0; font-size: 0.75rem;">
+                    © <%= new Date().getFullYear() %> TerreCoord. Family property coordination made simple.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/client.js"></script>
 </body>
 </html>

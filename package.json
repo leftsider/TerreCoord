@@ -1,26 +1,33 @@
 {
-  "name": "terrecoord",
+  "name": "TerreCoord-property-coordinator",
   "version": "1.0.0",
-  "description": "Coordinate your stays, experience your spaces",
-  "main": "index.js",
+  "description": "Family-friendly vacation property booking coordinator with customs documentation",
+  "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "booking",
+    "property-management",
+    "calendar",
+    "customs-documentation"
+  ],
+  "author": "Bryan",
+  "license": "MIT",
   "dependencies": {
-    "body-parser": "^2.2.0",
-    "ejs": "^3.1.10",
-    "express": "^5.1.0",
-    "googleapis": "^150.0.1",
-    "multer": "^2.0.1",
-    "nodemailer": "^7.0.3",
-    "pdf-lib": "^1.17.1"
+    "body-parser": "^1.20.2",
+    "dotenv": "^16.3.1",
+    "ejs": "^3.1.9",
+    "express": "^4.18.2",
+    "googleapis": "^128.0.0",
+    "nodemailer": "^8.0.2",
+    "pdfkit": "^0.14.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
