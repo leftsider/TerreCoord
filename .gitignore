@@ -11,6 +11,9 @@ yarn-error.log*
 .env.production
 .env.*.backup
 
+# Calendar credentials
+calendars.json
+
 # OAuth tokens
 token.json
 credentials.json

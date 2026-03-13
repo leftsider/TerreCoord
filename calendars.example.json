@@ -1,0 +1,10 @@
+{
+  "beach": {
+    "name": "Beach House",
+    "id": "beach@group.calendar.google.com"
+  },
+  "mountain": {
+    "name": "Mountain Cabin",
+    "id": "mountain@group.calendar.google.com"
+  }
+}
